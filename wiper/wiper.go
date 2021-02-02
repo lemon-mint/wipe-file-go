@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 )
 
 const blockSize = 1024 * 1024
@@ -45,11 +46,16 @@ func Wipe(filename string) error {
 	}
 	f.Sync()
 	f.Close()
-	newname := randb32()
+	dir, _ := filepath.Split(filename)
+	newname := filepath.Join(dir, randb32())
+	//fmt.Println(filename)
+	//fmt.Println(dir)
 	for i := 0; i < 10; i++ {
+		//fmt.Println(newname)
 		os.Rename(filename, newname)
 		filename = newname
-		newname = randb32()
+		newname = filepath.Join(dir, randb32())
+		//time.Sleep(time.Second * 2)
 	}
 	return os.Remove(filename)
 	//return nil
