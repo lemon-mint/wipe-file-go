@@ -5,8 +5,10 @@ import (
 	"encoding/base32"
 	"io"
 	"math"
+	mrand "math/rand"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const blockSize = 1024 * 1024
@@ -126,6 +128,13 @@ func MixFileName(filename string, count int) (newname string, err error) {
 	return
 }
 
+//MixTime : change file date
+func MixTime(filename string, count int) {
+	for i := 0; i < count; i++ {
+		os.Chtimes(filename, time.Unix(mrand.Int63n(time.Now().Unix()), 0), time.Unix(mrand.Int63n(time.Now().Unix()), 0))
+	}
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -137,4 +146,9 @@ func randb32(size int) string {
 	buf := make([]byte, size)
 	io.ReadFull(rand.Reader, buf)
 	return base32.StdEncoding.EncodeToString(buf)
+}
+
+func init() {
+	mrand.Seed(time.Now().UTC().UnixNano())
+	mrand.Seed(time.Now().UTC().UnixNano())
 }
