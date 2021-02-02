@@ -9,7 +9,8 @@ import (
 
 const blockSize = 1024 * 1024
 
-func wipe(filename string) error {
+//Wipe file with basic wiping pattern (zerofill-randfill-randfill)
+func Wipe(filename string) error {
 	randbuf := make([]byte, blockSize)
 	f, err := os.OpenFile(filename, os.O_RDWR, 0666)
 	if err != nil {
@@ -23,7 +24,16 @@ func wipe(filename string) error {
 	blockCount := int(math.Ceil(float64(size) / blockSize))
 	counter := 0
 	for pass := 0; pass < 3; pass++ {
+		counter = 0
 		for i := 0; i < blockCount; i++ {
+			/*
+				if pass == 0 {
+					f.Read(randbuf[:blockSize])
+					for i := range randbuf {
+						randbuf[i] = 255 - randbuf[i]
+					}
+				}
+			*/
 			f.WriteAt(randbuf, int64(counter*blockSize))
 			counter++
 			if pass != 0 {
@@ -35,4 +45,5 @@ func wipe(filename string) error {
 	f.Sync()
 	f.Close()
 	return os.Remove(filename)
+	//return nil
 }
