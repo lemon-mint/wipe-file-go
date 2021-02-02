@@ -43,8 +43,8 @@ func Wipe(filename string) error {
 			}
 		}
 		io.ReadFull(rand.Reader, randbuf)
+		f.Sync()
 	}
-	f.Sync()
 	f.Close()
 	dir, _ := filepath.Split(filename)
 	newname := filepath.Join(dir, randb32())
