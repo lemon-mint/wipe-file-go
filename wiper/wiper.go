@@ -107,8 +107,34 @@ func ZeroFill(filename string, count int) error {
 	return nil
 }
 
+//ComplementFill : fill file with Complement
+func ComplementFill(filename string) error {
+	randbuf := make([]byte, blockSize)
+	f, err := os.OpenFile(filename, os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	stat, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	size := stat.Size()
+	blockCount := int(math.Ceil(float64(size) / blockSize))
+	for i := 0; i < blockCount; i++ {
+		f.Read(randbuf[:blockSize])
+		for i := range randbuf {
+			randbuf[i] = 255 - randbuf[i]
+		}
+		f.WriteAt(randbuf, int64(i*blockSize))
+	}
+	f.Sync()
+	f.Close()
+	return nil
+}
+
 //MixFileName : change file name to random
 func MixFileName(filename string, count int) (newname string, err error) {
+	originalname := filename
 	dir, _ := filepath.Split(filename)
 	newname = filepath.Join(dir, randb32(20))
 	//fmt.Println(filename)
@@ -120,7 +146,7 @@ func MixFileName(filename string, count int) (newname string, err error) {
 			return
 		}
 		filename = newname
-		newname = filepath.Join(dir, randb32(max(len(filename), 20)))
+		newname = filepath.Join(dir, randb32(max(len(originalname), 20)))
 		//time.Sleep(time.Second * 2)
 	}
 	newname = filename
@@ -129,10 +155,14 @@ func MixFileName(filename string, count int) (newname string, err error) {
 }
 
 //MixTime : change file date
-func MixTime(filename string, count int) {
+func MixTime(filename string, count int) error {
 	for i := 0; i < count; i++ {
-		os.Chtimes(filename, time.Unix(mrand.Int63n(time.Now().Unix()), 0), time.Unix(mrand.Int63n(time.Now().Unix()), 0))
+		err := os.Chtimes(filename, time.Unix(mrand.Int63n(time.Now().Unix()), 0), time.Unix(mrand.Int63n(time.Now().Unix()), 0))
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func max(a, b int) int {
@@ -151,4 +181,36 @@ func randb32(size int) string {
 func init() {
 	mrand.Seed(time.Now().UTC().UnixNano())
 	mrand.Seed(time.Now().UTC().UnixNano())
+}
+
+//Wipe7pass : (randfill-zerofill-randfill-complementfill-randfill-randfill-randfill)
+func Wipe7pass(filename string) error {
+	err := RandFill(filename, 1)
+	if err != nil {
+		return err
+	}
+	err = ZeroFill(filename, 1)
+	if err != nil {
+		return err
+	}
+	err = ComplementFill(filename)
+	if err != nil {
+		return err
+	}
+	err = RandFill(filename, 3)
+	if err != nil {
+		return err
+	}
+	filename, err = MixFileName(filename, 10)
+	if err != nil {
+		return err
+	}
+	//time.Sleep(time.Second * 10)
+	err = MixTime(filename, 10)
+	//time.Sleep(time.Second * 10)
+
+	if err != nil {
+		return err
+	}
+	return os.Remove(filename)
 }
