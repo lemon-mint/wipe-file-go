@@ -209,11 +209,11 @@ func Wipe7pass(filename string) error {
 	if err != nil {
 		return err
 	}
-	filename, err = MixFileName(filename, 5)
+	filename, err = MixFileName(filename, 10)
 	if err != nil {
 		return err
 	}
-	err = MixTime(filename, 5)
+	err = MixTime(filename, 10)
 	if err != nil {
 		return err
 	}
