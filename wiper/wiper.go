@@ -119,9 +119,15 @@ func ComplementFill(filename string) error {
 		return err
 	}
 	size := stat.Size()
-	blockCount := int(math.Ceil(float64(size)/blockSize)) + 1
+	blockCount := int(math.Ceil(float64(size) / blockSize))
 	for i := 0; i < blockCount; i++ {
-		f.Read(randbuf[:blockSize])
+		_, err = f.Read(randbuf[:blockSize])
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
 		for i := range randbuf {
 			randbuf[i] = 255 - randbuf[i]
 		}
