@@ -201,14 +201,19 @@ func Wipe7pass(filename string) error {
 	if err != nil {
 		return err
 	}
-	filename, err = MixFileName(filename, 10)
+	filename, err = MixFileName(filename, 5)
 	if err != nil {
 		return err
 	}
-	//time.Sleep(time.Second * 10)
-	err = MixTime(filename, 10)
-	//time.Sleep(time.Second * 10)
-
+	err = MixTime(filename, 5)
+	if err != nil {
+		return err
+	}
+	filename, err = MixFileName(filename, 5)
+	if err != nil {
+		return err
+	}
+	err = MixTime(filename, 5)
 	if err != nil {
 		return err
 	}
