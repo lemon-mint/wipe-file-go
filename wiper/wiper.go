@@ -201,11 +201,11 @@ func Wipe7pass(filename string) error {
 	if err != nil {
 		return err
 	}
-	err = ComplementFill(filename)
+	err = RandFill(filename, 3)
 	if err != nil {
 		return err
 	}
-	err = RandFill(filename, 3)
+	err = ComplementFill(filename)
 	if err != nil {
 		return err
 	}
@@ -222,6 +222,47 @@ func Wipe7pass(filename string) error {
 		return err
 	}
 	err = MixTime(filename, 5)
+	if err != nil {
+		return err
+	}
+	return os.Remove(filename)
+}
+
+//Wipe8pass : (randfill-zerofill-randfill-complementfill-randfill-randfill-randfill-zerofill)
+func Wipe8pass(filename string) error {
+	err := RandFill(filename, 1)
+	if err != nil {
+		return err
+	}
+	err = ZeroFill(filename, 1)
+	if err != nil {
+		return err
+	}
+	err = RandFill(filename, 3)
+	if err != nil {
+		return err
+	}
+	err = ComplementFill(filename)
+	if err != nil {
+		return err
+	}
+	filename, err = MixFileName(filename, 10)
+	if err != nil {
+		return err
+	}
+	err = MixTime(filename, 10)
+	if err != nil {
+		return err
+	}
+	filename, err = MixFileName(filename, 5)
+	if err != nil {
+		return err
+	}
+	err = MixTime(filename, 5)
+	if err != nil {
+		return err
+	}
+	err = ZeroFill(filename, 1)
 	if err != nil {
 		return err
 	}
